@@ -97,12 +97,22 @@ void killDeadProcesses()
     }
 }
 
-void sendString(int connectionFileDescriptor, char *response)
+void sendString(int connectionFileDescriptor, char *string)
 {
-    if(send(connectionFileDescriptor, "teste", 5, 0) == -1)
+    if(send(connectionFileDescriptor, string, strlen(string), 0) == -1)
     {
         perror("send()");
     }
+}
+
+void receiveString(int connectionFileDescriptor, char *string)
+{
+    if(recv(connectionFileDescriptor, string, MAX_DATA_SIZE, 0) == -1)
+    {
+        perror("recv()");
+    }
+
+    printf("request -> %s", string);
 }
 
 void sigchld_handler(int s)

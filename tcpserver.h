@@ -20,7 +20,6 @@ typedef struct TCPServer{
     char port[PORT_SIZE];
     int socketFileDescriptor;
     int newConnectionFileDescriptor;
-    char buffer[MAX_DATA_SIZE];
     struct sockaddr_storage addressStorage;
     
 } TCPServer;
@@ -36,6 +35,8 @@ void listenForConnections(TCPServer *server);
 void acceptConnection(TCPServer *server);
 
 void sendString(int connectionFileDescriptor, char *response);
+
+void receiveString(int connectionFileDescriptor, char *string);
 
 void killDeadProcesses();
 
