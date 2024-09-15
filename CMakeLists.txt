@@ -4,5 +4,8 @@ project(http-server)
 
 add_library(tcpserver tcpserver.c)
 
-add_executable(server server.c)
-target_link_libraries(server PUBLIC tcpserver)
+add_library(httpserver httpserver.c)
+target_link_libraries(httpserver PUBLIC tcpserver)
+
+add_executable(test test.c)
+target_link_libraries(test PUBLIC httpserver)

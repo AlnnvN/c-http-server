@@ -1,3 +1,6 @@
+#ifndef TCP_SERVER_H
+#define TCP_SERVER_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -11,7 +14,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-#define MAX_DATA_SIZE 2048 // max number of bytes we can get at once 
+#define MAX_DATA_SIZE 16384 // max number of bytes we can get at once 
 #define HOST_SIZE 15
 #define PORT_SIZE 5
 #define BACKLOG 10
@@ -43,3 +46,5 @@ void killDeadProcesses();
 void sigchld_handler(int s);
 
 void *get_in_addr(struct sockaddr *socketAddress);
+
+#endif

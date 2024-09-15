@@ -112,7 +112,7 @@ void receiveString(int connectionFileDescriptor, char *string)
         perror("recv()");
     }
 
-    printf("request -> %s", string);
+    printf("received: %s", string);
 }
 
 void sigchld_handler(int s)
