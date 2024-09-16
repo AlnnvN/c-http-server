@@ -15,7 +15,6 @@
 #include <signal.h>
 
 #define MAX_DATA_SIZE 16384 // max number of bytes we can get at once 
-#define HOST_SIZE 15
 #define PORT_SIZE 5
 #define BACKLOG 10
 

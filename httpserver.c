@@ -15,7 +15,7 @@ void createPostRoute(char *path, Handler handlerFunction)
     routeCount++;
 }
 
-void handlePost(char *response, char *request_path)
+void handlePost(char *response, char *requestPath, char *requestBody)
 {
     // server will look for the path at a naively implemented dictionary
 
@@ -23,10 +23,10 @@ void handlePost(char *response, char *request_path)
 
     for(int i = 0; i < routeCount; i++)
     {
-        if(strcmp(routes[i].path, request_path) == 0)
+        if(strcmp(routes[i].path, requestPath) == 0)
         {
             found = 1;
-            routes[i].handler(response);
+            routes[i].handler(response, requestBody);
             return;
         }
     }
@@ -37,11 +37,11 @@ void handlePost(char *response, char *request_path)
     }
 }
 
-void handleGet(char *response, char *request_path)
+void handleGet(char *response, char *requestPath)
 {
     // server will look for the file in the same level as the binary.
 
-    FILE *file = fopen(request_path + 1, "r");
+    FILE *file = fopen(requestPath + 1, "r");
 
     if(!file)
     {
@@ -52,27 +52,27 @@ void handleGet(char *response, char *request_path)
     {
         char *content_type = "";
 
-        if(strstr(request_path, ".html")) 
+        if(strstr(requestPath, ".html")) 
         {
             strcmp(content_type, "text/html");
         }
-        else if(strstr(request_path, ".css")) 
+        else if(strstr(requestPath, ".css")) 
         {
             strcmp(content_type, "text/css");
         }
-        else if(strstr(request_path, ".js")) 
+        else if(strstr(requestPath, ".js")) 
         {
             strcmp(content_type, "application/javascript");
         }
-        else if(strstr(request_path, ".png")) 
+        else if(strstr(requestPath, ".png")) 
         {
             strcmp(content_type, "image/png");
         }
-        else if(strstr(request_path, ".jpeg")) 
+        else if(strstr(requestPath, ".jpeg")) 
         {
             strcmp(content_type, "image/jpeg");
         }
-        else if(strstr(request_path, ".ico"))
+        else if(strstr(requestPath, ".ico"))
         {
             strcmp(content_type, "image/x-icon");
         }
@@ -91,30 +91,55 @@ void handleGet(char *response, char *request_path)
     }
 }
 
-void requestHandler(char *response, char *request_type, char *request_path)
+void requestHandler(char *response, char *requestType, char *requestPath, char *requestBody)
 {
-    if(strcmp(request_type, "POST") == 0)
+    if(strcmp(requestType, "POST") == 0)
     {
-        handlePost(response, request_path);
+        handlePost(response, requestPath, requestBody);
     }
-    else if(strcmp(request_type, "GET") == 0)
+    else if(strcmp(requestType, "GET") == 0)
     {
-        handleGet(response, request_path);
+        handleGet(response, requestPath);
+    }
+}
+
+void parseRequest(char *request, char *requestType, char *requestPath, char *requestBody)
+{
+    sscanf(request, "%s %s", requestType, requestPath); // parses request type and request path
+
+    if(strcmp(requestType, "POST") == 0)
+    {
+        char *contentLengthHeader = strstr(request, "Content-Length:"); // finds pointer to content length
+        int contentLength = 0;
+
+        if (contentLengthHeader)
+        {
+            sscanf(contentLengthHeader, "Content-Length: %d", &contentLength); // parses content length
+
+            char *bodyStart = strstr(request, "\r\n\r\n"); // finds body starting point
+
+            if (bodyStart) {
+                bodyStart += 4;  // skips \r\n\r\n
+                strncpy(requestBody, bodyStart, contentLength);
+                requestBody[contentLength] = '\0';  
+            }
+        }
     }
 }
 
 void onConnection(int connectionFileDescriptor)
 {
     char request[MAX_DATA_SIZE];
-    char request_type[10];
-    char request_path[MAX_DATA_SIZE];
+    char requestType[10];
+    char requestPath[MAX_DATA_SIZE];
     char response[MAX_DATA_SIZE];
+    char requestBody[MAX_DATA_SIZE];
 
     receiveString(connectionFileDescriptor, request);
 
-    sscanf(request, "%s %s", request_type, request_path); // parses request type and request path
+    parseRequest(request, requestType, requestPath, requestBody);
 
-    requestHandler(response, request_type, request_path);
+    requestHandler(response, requestType, requestPath, requestBody);
 
     sendString(connectionFileDescriptor, response);
 }
